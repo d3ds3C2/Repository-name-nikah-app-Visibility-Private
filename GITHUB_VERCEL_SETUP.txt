@@ -1,0 +1,10 @@
+Nikah.App 5.0.0 — GitHub → Vercel Production
+
+Bu paket GitHub ana dalına (main) yüklendiğinde Vercel production deploy'u otomatik çalıştıracak şekilde hazırlanmıştır.
+
+Gerekli GitHub repository secrets:
+- VERCEL_TOKEN
+- VERCEL_ORG_ID
+- VERCEL_PROJECT_ID
+
+Vercel projesi GitHub'a doğrudan bağlanırsa GitHub Actions şart değildir; Vercel main branch push'larını otomatik production'a alabilir.

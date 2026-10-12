@@ -1,0 +1,77 @@
+{
+  "version": "5.4.0",
+  "translation_coverage": {
+    "tr": {
+      "base": 259,
+      "missing": 0,
+      "nx": 61,
+      "nxMissing": 0,
+      "ax": 54,
+      "axMissing": 0
+    },
+    "id": {
+      "base": 259,
+      "missing": 0,
+      "nx": 61,
+      "nxMissing": 0,
+      "ax": 54,
+      "axMissing": 0
+    },
+    "en": {
+      "base": 259,
+      "missing": 0,
+      "nx": 61,
+      "nxMissing": 0,
+      "ax": 54,
+      "axMissing": 0
+    },
+    "zh": {
+      "base": 259,
+      "missing": 0,
+      "nx": 61,
+      "nxMissing": 0,
+      "ax": 54,
+      "axMissing": 0
+    },
+    "th": {
+      "base": 259,
+      "missing": 0,
+      "nx": 61,
+      "nxMissing": 0,
+      "ax": 54,
+      "axMissing": 0
+    }
+  },
+  "demo_flow": {
+    "register_otp_onboarding": true,
+    "gender_filter_both_directions": true,
+    "like_match_chat": true,
+    "pass": true,
+    "advisory_create_pay_upload": true,
+    "journey_stage_docs": true,
+    "language_switch": true,
+    "logout_relogin_delete": true,
+    "deep_link_boot": true,
+    "js_errors": 0,
+    "showcase_profiles_labelled_and_unlikeable": true,
+    "team_profiles_labelled_auto_match_chat": true,
+    "founder_badge_and_discount": true,
+    "community_stats_home_and_auth": true,
+    "verification_consent_modal_and_status": true,
+    "legal_pages_5_docs_deep_link_and_lang_fallback": true,
+    "onboarding_explicit_consent_checkbox": true,
+    "showcase_photos_render": true
+  },
+  "schema_checks": {
+    "verification_flags_client_writable": false,
+    "profiles_globally_readable": false,
+    "birth_date_exposed_in_discovery": false,
+    "blocks_hide_both_ways": true,
+    "price_from_client": false,
+    "showcase_profiles_are_not_users": true,
+    "client_can_set_kind_or_founder": false,
+    "stats_are_real_aggregates_only": true,
+    "verification_flags_written_only_by_webhook_service_role": true,
+    "document_images_or_numbers_stored": false
+  }
+}

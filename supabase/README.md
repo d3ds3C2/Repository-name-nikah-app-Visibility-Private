@@ -1,3 +1,5 @@
+> **5.5.0 notu:** Canlı projede tek dosyalık `schema-5.5.sql` kullanılıyor (SQL Editor → yapıştır → Run). Aşağıdaki 5.1–5.4 adımları edge function kurulumu için referanstır; `schema.sql` ve `migration-*.sql` dosyalarını 5.5 şemasının üzerine çalıştırmayın.
+
 # Supabase kurulumu — Nikah.App 5.1.0
 
 ## 1. Şema

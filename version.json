@@ -1,7 +1,7 @@
 {
   "name": "Nikah.App",
-  "version": "5.4.0",
-  "release": "backend-connected",
+  "version": "5.5.0",
+  "release": "live-backend",
   "languages": [
     "tr",
     "id",
@@ -9,5 +9,5 @@
     "zh",
     "th"
   ],
-  "backend": "supabase (demo mode when config.js is empty)"
+  "backend": "supabase (eu-central-1)"
 }

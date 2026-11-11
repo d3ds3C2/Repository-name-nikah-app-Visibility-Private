@@ -1,26 +1,20 @@
-# Nikah.App 5.4.0 — Durum
+# Nikah.App 5.5.0 — Durum
 
-## Hazır (kodda)
-- Supabase Auth (e-posta/şifre + OTP, telefon opsiyonel), profil/tercih/ayar senkronu
-- Sunucu taraflı keşif (cinsiyet iki yönlü, yaş, niyet, çocuk, bölge, doğrulanmış, engel, geçilen, beğenilen)
-- Sunucu taraflı eşleşme, gerçek zamanlı mesajlaşma, engelleme/şikâyet, hesap silme
-- Fotoğraf yükleme (özel bucket, imzalı URL)
-- Danışmanlık modülü: paketler, talep, Stripe Checkout, webhook ile ödeme onayı, evrak yükleme, danışmana e-posta
-- DeepL çeviri (profil + mesaj)
-- URL yönlendirme, demo modu bandı, klavye ile erişilebilir switch'ler, reduced-motion
-- Hukuki metinler (TR/EN/ID; ZH/TH özet) + açık rıza kaydı — TASLAK, avukat kontrolü gerekir
-- Profil fotoğrafları kartlarda, eşleşene kadar bulanıklaştırma; vitrin illüstrasyon avatarları
-- Selfie + kimlik doğrulama (Didit, rıza akışı, webhook imza doğrulama, DOB çapraz kontrol)
-- Lansman kiti: etiketli vitrin profilleri (12), ekip profilleri (oto-eşleşme), kurucu üye + indirim, gerçek topluluk sayaçları
-- 5 dil (yeni 70+ anahtar dâhil, kapsama %100)
+## Canlı
+- Supabase projesi: `nikah-app` (Frankfurt). Şema: `supabase/schema-5.5.sql` — 18 tablo, tamamı RLS korumalı; RPC'ler, depolama bucket'ları, Realtime.
+- `config.js` dolu: Supabase adresi + herkese açık (publishable) anahtar, şirket bilgileri, WhatsApp.
+- Kayıt/giriş, profil, keşif, beğeni/eşleşme, mesajlaşma, engelleme/şikâyet, hesap silme, danışmanlık talebi + evrak yükleme.
+- 12 etiketli örnek profil; kurucu üye (ilk 500) + %30 danışmanlık indirimi.
+- 5 dil.
 
-## Yapılandırma gerektirir
-- config.js (Supabase URL/anon key, legal: şirket ünvanı/adres/e-posta)
-- Edge function secret'ları (Stripe, Resend, DeepL, Didit)
-- Supabase e-posta şablonu ({{ .Token }})
+## Yayın öncesi yapılacaklar
+- Supabase Auth → e-posta: varsayılan e-posta servisi yalnızca proje ekibine gönderir (saatte 2). Halka açılmadan önce özel SMTP (ör. Resend) bağlanmalı ve "Confirm signup" şablonuna `{{ .Token }}` eklenmeli; ya da test döneminde "Confirm email" kapatılmalı.
+- Supabase Auth → URL Configuration → Site URL: yayın adresi.
+- Ekip profili: kayıt olup onboarding'i tamamlayın, sonra SQL Editor'da `update public.profiles set kind='team' where id='<uuid>';`
+- Hukuki metinler taslaktır; avukat kontrolü gerekir.
 
-## Henüz bağlı değil
-- Push bildirimleri
-- Gerçek RTC (sesli/görüntülü)
-- iyzico/PayTR (Türkiye tüzel kişiliği için Stripe yerine)
-- Moderasyon paneli (Dashboard ile idare edilir)
+## Kapalı (sağlayıcı hesabı gerektirir)
+- Kimlik/selfie doğrulama (Didit) — `config.js` → `verificationEnabled`
+- Çevrimiçi ödeme (Stripe/iyzico) — `paymentsEnabled`
+- Otomatik çeviri (DeepL) — `translationEnabled`
+- Push bildirimleri, gerçek sesli/görüntülü arama, moderasyon paneli

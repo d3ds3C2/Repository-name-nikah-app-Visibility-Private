@@ -30,7 +30,7 @@ terms:`
 <li>Hizmete fiilen başlanmadan önce iptal halinde ücret tam iade edilir. Başlandıktan sonra, tamamlanmış işlerin bedeli düşülerek kalan kısım iade edilir. Teslim edilmiş tercüme ve apostil işlemleri iade edilemez.</li>
 <li>Mesafeli Sözleşmeler Yönetmeliği uyarınca tüketicinin 14 günlük cayma hakkı, ifasına başlanmış hizmetler hariç saklıdır.</li></ul>
 <h3>7. Fikri mülkiyet</h3>
-<p>Uygulama, tasarım ve içerikler %{company}'e aittir. Kullanıcı, yüklediği içerikler için Hizmetin işletilmesi amacıyla sınırlı, dünya çapında, telifsiz bir lisans verir.</p>
+<p>Uygulama, tasarım ve içerikler %{company} mülkiyetindedir. Kullanıcı, yüklediği içerikler için Hizmetin işletilmesi amacıyla sınırlı, dünya çapında, telifsiz bir lisans verir.</p>
 <h3>8. Sorumluluğun sınırı</h3>
 <p>Hizmet "olduğu gibi" sunulur. Kullanıcılar arasındaki iletişim ve buluşmalardan doğan zararlardan %{company} sorumlu değildir. Zorunlu hukuk kuralları saklı kalmak kaydıyla sorumluluk, son 12 ayda ödenen ücretle sınırlıdır.</p>
 <h3>9. Değişiklikler ve fesih</h3>

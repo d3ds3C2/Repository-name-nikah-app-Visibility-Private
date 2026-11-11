@@ -28,6 +28,8 @@ const DEMO_PACKAGES=[
 ];
 
 const uid=()=> (crypto.randomUUID?crypto.randomUUID():'id-'+Math.random().toString(36).slice(2)+Date.now().toString(36));
+const AUTH_CHANNEL=(window.NIKAH_CONFIG||{}).authChannel==='phone'?'phone':'email'; // where the sign-up code is sent
+const verifiedFlag=()=>AUTH_CHANNEL==='phone'?'phoneVerified':'emailVerified';
 
 /* ---------------------------------------------------------------- demo */
 function genderOk(me,p){
@@ -43,10 +45,11 @@ const DemoApi={
   async register({email,phone}){state.auth.pending={email,phone};return {needsOtp:true,channel:'email'}},
   async verifyOtp({code}){if(code!=='123456')throw new Error(tr('wrong_code'));
    state.user.email=state.auth.pending?.email||state.user.email;state.user.phone=state.auth.pending?.phone||state.user.phone;
-   state.user.phoneVerified=true;state.session=true;return {session:true}},
-  async login(){state.session=true;if(!state.user.phoneVerified)state.user.phoneVerified=true;return {session:true}},
+   state.user[verifiedFlag()]=true;state.session=true;return {session:true}},
+  async login(){state.session=true;if(!state.user.phoneVerified&&!state.user.emailVerified)state.user[verifiedFlag()]=true;return {session:true}},
   async resetPassword(){return true},
   async resendOtp(){return true},
+  async updatePassword(){return true},
   async logout(){state.session=false},
   async deleteAccount(){localStorage.removeItem(STORAGE);localStorage.removeItem(LEGACY)}
  },
@@ -59,13 +62,18 @@ const DemoApi={
  discover:{
   async list(){return DEMO_PROFILES.filter(p=>genderOk(state.user,p)).map(p=>({...p}))},
   async like(id,note,kind){const p=DEMO_PROFILES.find(x=>x.id===id);if(!p)throw new Error('not found');if(p.kind==='showcase')return {matched:false,showcase:true};return {matched:!!p.mutual||p.kind==='team',matchId:(p.mutual||p.kind==='team')?'demo-'+id:null}},
-  async pass(){return true}
+  async pass(){return true},
+  async unpass(){return true}
  },
  matches:{async list(){return DEMO_PROFILES.filter(p=>state.matches.includes(p.id)&&p.kind!=='showcase').map(p=>({...p,matchId:'demo-'+p.id}))}},
  async stats(){return {members:0,new_this_week:0,verified:0,team:DEMO_PROFILES.filter(p=>p.kind==='team').length,showcase:DEMO_PROFILES.filter(p=>p.kind==='showcase').length,founders_left:500,founder_discount_pct:30,countries:{}}},
  messages:{
   async list(id){return (state.messages[id]||[])},
-  async send(id,text){state.messages[id]=state.messages[id]||[];state.messages[id].push({from:'me',text,time:new Date().toISOString()});return true},
+  async send(id,text){const list=state.messages[id]=state.messages[id]||[];list.push({from:'me',text,time:new Date().toISOString()});
+   // demo only: a team profile answers the first message with a clearly labelled automatic welcome
+   const p=DEMO_PROFILES.find(x=>'demo-'+x.id===id||x.id===id);
+   if(p&&p.kind==='team'&&!list.some(m=>m.from==='them')){const home=BX[p.lang]?p.lang:'en',tx={};for(const l of Object.keys(BX))if(l!==home)tx[l]=BX[l].team_welcome;list.push({from:'them',text:BX[home].team_welcome,translations:tx,time:new Date(Date.now()+1000).toISOString(),auto:true})}
+   return true},
   subscribe(){return()=>{}}
  },
  safety:{async block(){return true},async report(){return true},async requestVerification(){return true},async logCall(){return true}},
@@ -99,13 +107,14 @@ function makeSupabaseApi(cfg){
   const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||`${name} failed`);return j;
  }
  async function signed(bucket,path){
-  if(!path)return '';if(/^(\/|https?:)/.test(path))return path; // static asset (showcase) or absolute URLconst k=bucket+'/'+path,c=signedUrlCache.get(k);if(c&&c.exp>Date.now())return c.url;
+  if(!path)return '';if(/^(\/|https?:|data:)/.test(path))return path; // static asset (showcase) or absolute URL
+  const k=bucket+'/'+path,c=signedUrlCache.get(k);if(c&&c.exp>Date.now())return c.url;
   const {data,error}=await sb.storage.from(bucket).createSignedUrl(path,3600);if(error)return '';
   signedUrlCache.set(k,{url:data.signedUrl,exp:Date.now()+3300e3});return data.signedUrl;
  }
  async function rowToProfile(r){
   const bio={...(r.bio_translations||{})};if(r.bio)bio[r.lang||'en']=r.bio;
-  const prompts=(Array.isArray(r.prompts)?r.prompts:[]).map(([k,txt])=>[k,{[r.lang||'en']:txt}]);
+  const prompts=(Array.isArray(r.prompts)?r.prompts:[]).map(([k,txt])=>[k,txt&&typeof txt==='object'?txt:{[r.lang||'en']:txt}]);
   return {id:r.id,kind:r.kind||'member',name:r.name,age:r.age,gender:r.gender,lang:r.lang,country:r.country,city:r.city,intent:r.intent,children:r.children_plan,family:r.family_role,relocation:r.relocation,job:r.occupation,languages:r.languages||[],compat:r.compat||{},bio,prompts,
    verified:!!r.selfie_verified,selfieVerified:!!r.selfie_verified,identityVerified:!!r.identity_verified,phoneVerified:!!r.phone_verified,
    photo:await signed('profile-photos',r.photo_path),photoBlur:!!r.photo_blur,matchId:r.match_id||null,likeNote:r.like_note||null,lastMessageAt:r.last_message_at||null};
@@ -138,10 +147,15 @@ function makeSupabaseApi(cfg){
     const creds=id.includes('@')?{email:id,password}:{phone:id,password};
     const {data,error}=await sb.auth.signInWithPassword(creds);if(error)err(error);me=data.user;return {session:true};
    },
-   async resetPassword(id){const {error}=await sb.auth.resetPasswordForEmail(id,{redirectTo:location.origin+'/reset'});if(error)err(error);return true},
+   async resetPassword(id){const {error}=await sb.auth.resetPasswordForEmail(id,{redirectTo:location.origin+'/?reset=1'});if(error)err(error);return true},
+   async updatePassword(password){const {error}=await sb.auth.updateUser({password});if(error)err(error);return true},
    async resendOtp(){const p=state.auth.pending||{};const {error}=await sb.auth.resend(channel==='phone'?{type:'sms',phone:p.phone}:{type:'signup',email:p.email});if(error)err(error);return true},
    async logout(){await sb.auth.signOut();me=null},
-   async deleteAccount(){const {error}=await sb.rpc('delete_my_account');if(error)err(error);await sb.auth.signOut();me=null}
+   async deleteAccount(){
+    // stored files first: the database function cannot remove storage objects
+    const purge=async(bucket,prefix,depth)=>{const {data}=await sb.storage.from(bucket).list(prefix,{limit:1000});const files=[];for(const o of data||[]){const path=prefix+'/'+o.name;if(o.id===null){if(depth>0)await purge(bucket,path,depth-1)}else files.push(path)}if(files.length)await sb.storage.from(bucket).remove(files)};
+    try{await purge('profile-photos',me.id,0);await purge('advisory-docs',me.id,1)}catch{}
+    const {error}=await sb.rpc('delete_my_account');if(error)err(error);await sb.auth.signOut();me=null}
   },
   profile:{
    async load(){
@@ -181,7 +195,8 @@ function makeSupabaseApi(cfg){
   discover:{
    async list(){const {data,error}=await sb.rpc('discover_candidates',{max_results:20});if(error)err(error);return Promise.all((data||[]).map(rowToProfile))},
    async like(id,note,kind){const {data,error}=await sb.rpc('like_profile',{target:id,like_kind:kind||'like',like_note:note||null});if(error)err(error);return {matched:!!data?.matched,matchId:data?.match_id||null}},
-   async pass(id){const {error}=await sb.from('passes').upsert({from_user:me.id,to_user:id});if(error)err(error);return true}
+   async pass(id){const {error}=await sb.from('passes').upsert({from_user:me.id,to_user:id});if(error)err(error);return true},
+   async unpass(id){const {error}=await sb.from('passes').delete().eq('from_user',me.id).eq('to_user',id);if(error)err(error);return true}
   },
   matches:{async list(){const {data,error}=await sb.rpc('my_matches');if(error)err(error);return Promise.all((data||[]).map(rowToProfile))}},
   async stats(){const {data,error}=await sb.rpc('community_stats');if(error)return null;return data},

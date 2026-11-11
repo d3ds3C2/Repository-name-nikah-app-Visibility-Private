@@ -1,3 +1,22 @@
+# Nikah.App 5.5.0 — canlı backend + hata düzeltmeleri
+
+Bu sürümde uygulama gerçek Supabase projesine bağlandı (Frankfurt, `eu-central-1`) ve `config.js` dolduruldu.
+
+## 5.5.0'da ne değişti
+- **Türkçe dışındaki dillerde eşleşme düzeltildi**: "Kimi arıyorsunuz?" seçimi çevrilmiş etiketle kaydediliyordu; artık her dilde aynı değer kaydediliyor, eski kayıtlar açılışta düzeltiliyor.
+- **Canlı modda fotoğraf hatası düzeltildi** (`api.js` → `signed()` içinde yoruma kaymış satır).
+- **Güvenlik**: başka kullanıcıdan gelen serbest metinler (meslek, profil sorusu başlığı) artık her yerde kaçışlanıyor.
+- Dil alanı boş profillerde sonsuz döngü, şifre sıfırlama dönüş ekranı, e-posta doğrulama ekranı metni düzeltildi.
+- Yeni: son geçişi geri alma, nedenli şikâyet + engelleme, mesaj saati, eşleşme listesinde son mesaj, çocuk tercihi filtresi, tarayıcı diline göre açılış, WhatsApp bağlantısı.
+- Doğrulama (Didit), ödeme (Stripe) ve çeviri (DeepL) `config.js` içindeki bayraklarla **kapalı**; sağlayıcılar bağlanınca açılır. Kapalıyken danışmanlık talepleri `new` durumunda kaydedilir ve ekip elle döner.
+
+## Veritabanı
+Canlı projede **`supabase/schema-5.5.sql`** çalıştırıldı (tek dosya, tekrar çalıştırılabilir; tablolar, RLS, RPC'ler, depolama, 12 etiketli örnek profil).
+`schema.sql` ve `migration-*.sql` dosyaları 5.4 dönemine aittir ve edge function'larla birlikte referans için duruyor; **5.5 şemasının üzerine çalıştırmayın**.
+Edge function'lar (ödeme, doğrulama, çeviri) devreye alınırken 5.5 şemasına `payments`, `verification_events` ve ek doğrulama sütunları eklenmelidir.
+
+---
+
 # Nikah.App 5.4.0 — Backend-connected + launch kit + ID verification + legal
 
 5.0.1 "production hardened" paketi yalnızca bir ön yüz demosuydu. 5.1.0 ile uygulama **gerçek bir backend'e bağlanıyor**
